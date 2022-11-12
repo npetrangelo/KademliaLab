@@ -1,11 +1,16 @@
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
+import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
 public class Node extends AbstractBehavior<Node.M> {
-    public Node(ActorContext context) {
+    private Node(ActorContext context) {
         super(context);
+    }
+
+    public static Behavior<M> create() {
+        return Behaviors.setup(Node::new);
     }
 
     @Override
