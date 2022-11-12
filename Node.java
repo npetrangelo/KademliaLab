@@ -1,3 +1,4 @@
+import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
@@ -22,6 +23,7 @@ public class Node extends AbstractBehavior<Node.M> {
     }
 
     public Behavior<M> onPing(Ping p) {
+        p.replyTo().tell(new Pong());
         return this;
     }
 
@@ -29,7 +31,7 @@ public class Node extends AbstractBehavior<Node.M> {
         return this;
     }
 
-    public record Ping() implements M {}
-    public record FindNode() implements M {}
+    public record Ping(ActorRef<M> replyTo) implements M {}
+    public record Pong() implements M {}
     public interface M { }
 }
