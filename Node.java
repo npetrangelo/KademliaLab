@@ -38,8 +38,8 @@ public class Node extends AbstractBehavior<Node.M> {
     }
 
     public Behavior<M> onFind(FindNode n) {
-        List<Integer> sortedByDistance = kBuckets.keySet().stream()
-                .sorted(Comparator.comparingInt(a -> a^n.id())).toList();
+        List<Map.Entry<Integer, ActorRef<M>>> sortedByDistance = kBuckets.entrySet().stream()
+                .sorted(Comparator.comparingInt(entry -> entry.getKey()^n.id())).toList();
         n.replyTo().tell(new NodeList(sortedByDistance.subList(0, a)));
         return this;
     }
@@ -47,7 +47,7 @@ public class Node extends AbstractBehavior<Node.M> {
     public record Ping(ActorRef<M> replyTo) implements M { }
     public record Pong() implements M { }
     public record FindNode(int id, ActorRef<M> replyTo) implements M { }
-    public record NodeList(List<Integer> ids) implements M { }
+    public record NodeList(List<Map.Entry<Integer, ActorRef<M>>> ids) implements M { }
 
     public interface M { }
 }
