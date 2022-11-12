@@ -5,13 +5,23 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class Node extends AbstractBehavior<Node.M> {
-    private Node(ActorContext context) {
+    private final int a;
+    private Map<Integer, ActorRef<M>> kBuckets;
+
+    private Node(ActorContext context, int a) {
         super(context);
+        this.a = a;
+        this.kBuckets = new HashMap<>();
     }
 
-    public static Behavior<M> create() {
-        return Behaviors.setup(Node::new);
+    public static Behavior<M> create(int a) {
+        return Behaviors.setup(context -> new Node(context, a));
     }
 
     @Override
@@ -27,11 +37,17 @@ public class Node extends AbstractBehavior<Node.M> {
         return this;
     }
 
-    public Behavior<M> onFind(FindNode p) {
+    public Behavior<M> onFind(FindNode n) {
+        List<Integer> sortedByDistance = kBuckets.keySet().stream()
+                .sorted(Comparator.comparingInt(a -> a^n.id())).toList();
+        n.replyTo().tell(new NodeList(sortedByDistance.subList(0, a)));
         return this;
     }
 
-    public record Ping(ActorRef<M> replyTo) implements M {}
-    public record Pong() implements M {}
+    public record Ping(ActorRef<M> replyTo) implements M { }
+    public record Pong() implements M { }
+    public record FindNode(int id, ActorRef<M> replyTo) implements M { }
+    public record NodeList(List<Integer> ids) implements M { }
+
     public interface M { }
 }
