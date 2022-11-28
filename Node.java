@@ -32,12 +32,12 @@ public class Node extends AbstractBehavior<Node.M> {
                 .build();
     }
 
-    public Behavior<M> onPing(Ping p) {
+    private Behavior<M> onPing(Ping p) {
         p.replyTo().tell(new Pong());
         return this;
     }
 
-    public Behavior<M> onFind(FindNode n) {
+    private Behavior<M> onFind(FindNode n) {
         List<Map.Entry<Integer, ActorRef<M>>> sortedByDistance = kBuckets.entrySet().stream()
                 .sorted(Comparator.comparingInt(entry -> entry.getKey()^n.id())).toList();
         n.replyTo().tell(new NodeList(sortedByDistance.subList(0, a)));
